@@ -27,17 +27,167 @@
                    @click="handleDelete">删 除
         </el-button>
       </template>
+      <template slot-scope="scope" slot="menu">
+        <el-button
+          type="text"
+          size="small"
+          @click.stop="jh(scope.row)"
+        >激活设备
+        </el-button>
+        <el-button
+        type="text"
+        size="small"
+        @click.stop="cxjh(scope.row)"
+      >重新激活
+      </el-button>
+      </template>
     </avue-crud>
+
+    <el-dialog
+      title="激活设备"
+      :visible.sync="jhShow"
+      width="50%"
+      append-to-body
+      @close="() => { this.$refs['jhForm'].resetFields() }">
+      <el-form ref="jhForm" :model="jhForm" :rules="jhRules">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="激活类型" label-width="120px" prop="checkType">
+              <el-select v-model="jhForm.checkType" placeholder="请选择">
+                <el-option
+                  v-for="item in jhType"
+                  :key="item.dictKey"
+                  :label="item.dictValue"
+                  :value="item.dictKey">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="jhForm.checkType === 1">
+            <el-form-item label="剩余次数" label-width="120px" prop="surplusFrequency">
+              <el-input v-model="jhForm.surplusFrequency" size="small" type="number" min="1"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="jhForm.checkType === 2">
+            <el-form-item label="生效日期" label-width="120px" prop="effectTime">
+              <el-date-picker
+                v-model="jhForm.effectTime"
+                align="right"
+                type="datetime"
+                placeholder="选择日期"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="jhForm.checkType === 2">
+            <el-form-item label="失效日期" label-width="120px" prop="invalidTime">
+              <el-date-picker
+                v-model="jhForm.invalidTime"
+                align="right"
+                type="datetime"
+                placeholder="选择日期"
+                :picker-options="pickerOptions">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="部门" label-width="120px" prop="orgId">
+              <el-select v-model="jhForm.orgId" placeholder="请选择">
+                <el-option
+                  v-for="item in depts"
+                  :key="item.id"
+                  :label="item.deptName"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="jhShow = false">取 消</el-button>
+    <el-button type="primary" @click="subJh('jhForm')">确 定</el-button>
+  </span>
+    </el-dialog>
   </basic-container>
 </template>
 
 <script>
-  import {getList, getDetail, add, update, remove} from "@/api/wy_equipment/equipment";
+  import {getList, getDetail, add, update, remove, jhsb, cxjhsb} from "@/api/wy_equipment/equipment";
   import {mapGetters} from "vuex";
+
+  import { getList as getDepts } from '@/api/system/dept'
 
   export default {
     data() {
       return {
+        jhTypes: 0,
+        jhShow: false,
+        jhForm: {
+          checkType: '',
+          effectTime: '',
+          eqId: '',
+          invalidTime: '',
+          orgId: '',
+          surplusFrequency: ''
+        },
+        jhType: [
+          {
+            dictValue: '次数',
+            dictKey: 1
+          },
+          {
+            dictValue: '时间',
+            dictKey: 2
+          },
+          {
+            dictValue: '无限制',
+            dictKey: 3
+          }
+        ],
+        pickerOptions: {
+          disabledDate(time) {
+            return time.getTime() > Date.now();
+          },
+          shortcuts: [{
+            text: '今天',
+            onClick(picker) {
+              picker.$emit('pick', new Date());
+            }
+          }, {
+            text: '明天',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24);
+              picker.$emit('pick', date);
+            }
+          }, {
+            text: '一周后',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() + 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', date);
+            }
+          }]
+        },
+        depts: [],
+        jhRules: {
+          checkType: [
+            { required: true, message: '请选择激活类型', trigger: 'change' }
+          ],
+          surplusFrequency: [
+            { required: true, message: '请输入剩余次数', trigger: 'change' }
+          ],
+          effectTime: [
+            { required: true, message: '请选择生效时间', trigger: 'change' }
+          ],
+          invalidTime: [
+            { required: true, message: '请选择失效时间', trigger: 'change' }
+          ],
+          orgId: [
+            { required: true, message: '请选择部门', trigger: 'change' }
+          ],
+        },
         form: {},
         query: {},
         loading: true,
@@ -127,6 +277,11 @@
         data: []
       };
     },
+    created() {
+      getDepts(1, 1000).then(res => {
+        this.depts = res.data.data
+      })
+    },
     computed: {
       ...mapGetters(["permission"]),
       permissionList() {
@@ -145,7 +300,49 @@
         return ids.join(",");
       }
     },
+    watch: {
+      'jhForm.checkType'() {
+        this.jhForm.effectTime = ''
+        this.jhForm.invalidTime = ''
+        this.jhForm.surplusFrequency = ''
+      }
+    },
     methods: {
+      // 激活设备
+      jh(row) {
+        this.jhTypes = 1
+        this.jhForm.eqId = row.id
+        this.jhShow = true
+      },
+      subJh(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            if (this.jhTypes === 1) {
+              jhsb(this.jhForm).then(res => {
+                if (res.data.code === 200) {
+                  this.$message.success('激活成功')
+                  this.onLoad()
+                  this.jhShow = false
+                }
+              })
+            } else if (this.jhTypes === 2) {
+              cxjhsb(this.jhForm).then(res => {
+                if (res.data.code === 200) {
+                  this.$message.success('重新激活成功')
+                  this.onLoad()
+                  this.jhShow = false
+                }
+              })
+            }
+          }
+        })
+      },
+      // 重新激活
+      cxjh(row) {
+        this.jhTypes = 2
+        this.jhForm.eqId = row.id
+        this.jhShow = true
+      },
       rowSave(row, done, loading) {
         add(row).then(() => {
           this.onLoad(this.page);

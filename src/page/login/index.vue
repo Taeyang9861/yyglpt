@@ -23,7 +23,7 @@
           <div class="login-menu">
             <a href="#" @click.stop="activeName='user'">{{ $t('login.userLogin') }}</a>
             <!--<a href="#" @click.stop="activeName='code'">{{ $t('login.phoneLogin') }}</a>-->
-            <a href="#" @click.stop="activeName='third'">{{ $t('login.thirdLogin') }}</a>
+<!--            <a href="#" @click.stop="activeName='third'">{{ $t('login.thirdLogin') }}</a>-->
           </div>
         </div>
 

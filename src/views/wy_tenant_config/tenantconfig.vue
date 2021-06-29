@@ -69,13 +69,21 @@
               }]
             },
             {
-              label: "收款码地址",
+              label: "收款码",
               prop: "collectionUrl",
-              rules: [{
-                required: true,
-                message: "请输入收款码地址",
-                trigger: "blur"
-              }]
+              type: 'upload',
+              listType: 'picture-img',
+              display: true,
+              showFileList: true,
+              multiple: true,
+              limit: 1,
+              propsHttp: {
+                // res: 'data',
+                url: 'data',
+              },
+              canvasOption: {},
+              dataType: 'string',
+              action: '/api/wy_tenant_config/tenantconfig/import',
             },
             {
               label: "租户名称",

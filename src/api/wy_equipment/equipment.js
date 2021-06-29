@@ -2,7 +2,7 @@ import request from '@/router/axios';
 
 export const getList = (current, size, params) => {
   return request({
-    url: '/api/wy_equipment/equipment/list',
+    url: '/api/wy_equipment/equipment/page',
     method: 'get',
     params: {
       ...params,
@@ -43,6 +43,22 @@ export const add = (row) => {
 export const update = (row) => {
   return request({
     url: '/api/wy_equipment/equipment/submit',
+    method: 'post',
+    data: row
+  })
+}
+
+export const jhsb = (row) => {
+  return request({
+    url: '/api/wy_equipment/equipment/perfect/info',
+    method: 'post',
+    data: row
+  })
+}
+
+export const cxjhsb = (row) => {
+  return request({
+    url: '/api/wy_equipment/equipment/reactivate/info',
     method: 'post',
     data: row
   })

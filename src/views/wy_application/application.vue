@@ -58,6 +58,7 @@
           viewBtn: true,
           selection: true,
           dialogClickModal: false,
+          labelWidth: 140,
           column: [
             {
               label: "应用标识",
@@ -103,6 +104,51 @@
               rules: [{
                 required: true,
                 message: "请输入备注",
+                trigger: "blur"
+              }]
+            },
+            {
+              label: "个推appid",
+              prop: "getuiAppId",
+              rules: [{
+                required: true,
+                message: "请输入个推appid",
+                trigger: "blur"
+              }]
+            },
+            {
+              label: "个推AppKey",
+              prop: "getuiAppKey",
+              rules: [{
+                required: true,
+                message: "请输入个推AppKey",
+                trigger: "blur"
+              }]
+            },
+            {
+              label: "个推AppSecret",
+              prop: "getuiAppSecret",
+              rules: [{
+                required: true,
+                message: "请输入个推AppSecret",
+                trigger: "blur"
+              }]
+            },
+            {
+              label: "个推接口地址",
+              prop: "getuiHost",
+              rules: [{
+                required: true,
+                message: "请输入个推接口地址",
+                trigger: "blur"
+              }]
+            },
+            {
+              label: "个推MasterSecret",
+              prop: "getuiMasterSecret",
+              rules: [{
+                required: true,
+                message: "请输入个推MasterSecret",
                 trigger: "blur"
               }]
             },

@@ -98,9 +98,9 @@ export default {
             label: "租户ID",
             prop: "tenantId",
             width: 100,
-            search: true,
             addDisplay: false,
             editDisplay: false,
+            hide: true,
             span: 24,
             rules: [{
               required: true,
