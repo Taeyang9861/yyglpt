@@ -1,5 +1,9 @@
 <template>
   <basic-container>
+    <div style="margin-bottom: 6px">
+      <avue-input-tree v-model="orgId" placeholder="请选择部门筛选" type="tree" :filter="false" :props="treeProps" :dic="depts"></avue-input-tree>
+    </div>
+
     <avue-crud :option="option"
                :table-loading="loading"
                :data="data"
@@ -35,11 +39,27 @@
         >激活设备
         </el-button>
         <el-button
-        type="text"
-        size="small"
-        @click.stop="cxjh(scope.row)"
-      >重新激活
-      </el-button>
+          type="text"
+          size="small"
+          @click.stop="cxjh(scope.row)"
+        >重新激活
+        </el-button>
+        <el-button
+          type="text"
+          size="small"
+          @click.stop="rgjs(scope.row)"
+        >{{ scope.row.isLock === 1 ? '人工解锁' : '人工锁定' }}
+        </el-button>
+      </template>
+      <!--          自定义列-->
+      <template slot="equipmentStatus" slot-scope="scope">
+        <span>{{ scope.row.equipmentStatus === 0 ? '未设置' : (scope.row.equipmentStatus === 1 ? '未锁机' : '锁机') }}</span>
+      </template>
+      <template slot="activationStatus" slot-scope="scope">
+        <span>{{ scope.row.activationStatus === 0 ? '未激活' : '激活' }}</span>
+      </template>
+      <template slot="isLock" slot-scope="scope">
+        <span>{{ scope.row.isLock === 1 ? '已锁定' : '未锁定' }}</span>
       </template>
     </avue-crud>
 
@@ -92,14 +112,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="部门" label-width="120px" prop="orgId">
-              <el-select v-model="jhForm.orgId" placeholder="请选择">
-                <el-option
-                  v-for="item in depts"
-                  :key="item.id"
-                  :label="item.deptName"
-                  :value="item.id">
-                </el-option>
-              </el-select>
+              <avue-input-tree v-model="jhForm.orgId" placeholder="请选择部门" type="tree" :filter="false" :props="treeProps" :dic="depts"></avue-input-tree>
             </el-form-item>
           </el-col>
         </el-row>
@@ -113,7 +126,7 @@
 </template>
 
 <script>
-  import {getList, getDetail, add, update, remove, jhsb, cxjhsb} from "@/api/wy_equipment/equipment";
+  import {getList, getDetail, add, update, remove, jhsb, cxjhsb, sj} from "@/api/wy_equipment/equipment";
   import {mapGetters} from "vuex";
 
   import { getList as getDepts } from '@/api/system/dept'
@@ -121,6 +134,7 @@
   export default {
     data() {
       return {
+        orgId: '',
         jhTypes: 0,
         jhShow: false,
         jhForm: {
@@ -145,6 +159,10 @@
             dictKey: 3
           }
         ],
+        treeProps: {
+          label: 'deptName',
+          value: 'id'
+        },
         pickerOptions: {
           disabledDate(time) {
             return time.getTime() > Date.now();
@@ -183,10 +201,7 @@
           ],
           invalidTime: [
             { required: true, message: '请选择失效时间', trigger: 'change' }
-          ],
-          orgId: [
-            { required: true, message: '请选择部门', trigger: 'change' }
-          ],
+          ]
         },
         form: {},
         query: {},
@@ -206,6 +221,8 @@
           border: true,
           index: true,
           viewBtn: true,
+          addBtn: false,
+          editBtn: false,
           selection: true,
           dialogClickModal: false,
           column: [
@@ -239,6 +256,7 @@
             {
               label: "设备状态",
               prop: "equipmentStatus",
+              slot: true,
               rules: [{
                 required: true,
                 message: "请输入设备状态",
@@ -246,17 +264,22 @@
               }]
             },
             {
+              label: "激活状态",
+              prop: "activationStatus",
+              slot: true
+            },
+            {
+              label: "是否人工锁定",
+              prop: "isLock",
+              slot: true
+            },
+            {
               label: "所属部门",
-              prop: "orgId",
-              rules: [{
-                required: true,
-                message: "请输入所属部门",
-                trigger: "blur"
-              }]
+              prop: "orgName"
             },
             {
               label: "应用标识",
-              prop: "applicationCode",
+              prop: "appCode",
               rules: [{
                 required: true,
                 message: "请输入应用标识",
@@ -305,9 +328,25 @@
         this.jhForm.effectTime = ''
         this.jhForm.invalidTime = ''
         this.jhForm.surplusFrequency = ''
+      },
+      orgId() {
+        this.query.orgId = this.orgId
+        this.onLoad({
+          pageSize: 10,
+          currentPage: 1,
+          total: 0
+        }, this.query)
       }
     },
     methods: {
+      // 人工解锁或锁定
+      rgjs(row) {
+        sj({ eqId: row.equipmentCheckVO.equipmentId, isLock: row.isLock === 1 ? 2 : 1 }).then(res => {
+          if (res.data.code === 200) {
+            this.$message.success('锁机状态修改成功')
+          }
+        })
+      },
       // 激活设备
       jh(row) {
         this.jhTypes = 1
@@ -412,6 +451,9 @@
         if (["edit", "view"].includes(type)) {
           getDetail(this.form.id).then(res => {
             this.form = res.data.data;
+            this.form.equipmentStatus = this.form.equipmentStatus === 0 ? '未设置' : (this.form.equipmentStatus === 1 ? '未锁机' : '锁机')
+            this.form.activationStatus = this.form.activationStatus === 0 ? '未激活' : '激活'
+            this.form.isLock = this.form.isLock === 1 ? '已锁定' : '未锁定'
           });
         }
         done();

@@ -2,7 +2,7 @@ import request from '@/router/axios';
 
 export const getList = (current, size, params) => {
   return request({
-    url: '/api/wy_equipment/equipment/page',
+    url: '/api/wy_equipment/equipment/list',
     method: 'get',
     params: {
       ...params,
@@ -64,3 +64,11 @@ export const cxjhsb = (row) => {
   })
 }
 
+// 锁机
+export const sj = (row) => {
+  return request({
+    url: '/api/wy_equipment_check/equipmentcheck/manual/lock/machine',
+    method: 'post',
+    data: row
+  })
+}

@@ -38,13 +38,13 @@
                        v-if="permission.user_delete"
                        @click="handleDelete">删 除
             </el-button>
-            <el-button type="info"
-                       size="small"
-                       plain
-                       v-if="permission.user_role"
-                       icon="el-icon-user"
-                       @click="handleGrant">角色配置
-            </el-button>
+<!--            <el-button type="info"-->
+<!--                       size="small"-->
+<!--                       plain-->
+<!--                       v-if="permission.user_role"-->
+<!--                       icon="el-icon-user"-->
+<!--                       @click="handleGrant">角色配置-->
+<!--            </el-button>-->
             <el-button type="info"
                        size="small"
                        plain
@@ -52,7 +52,7 @@
                        icon="el-icon-refresh"
                        @click="handleReset">密码重置
             </el-button>
-            <el-button type="info"
+            <!-- <el-button type="info"
                        size="small"
                        plain
                        v-if="userInfo.role_name.includes('admin')"
@@ -72,7 +72,7 @@
                        v-if="userInfo.role_name.includes('admin')"
                        icon="el-icon-download"
                        @click="handleExport">导出
-            </el-button>
+            </el-button> -->
           </template>
           <template slot-scope="{row}"
                     slot="tenantName">
@@ -310,7 +310,6 @@
                 value: "dictKey"
               },
               dataType: "number",
-              search: true,
               hide: true,
               display: false,
               prop: "userType",
@@ -561,7 +560,6 @@
             {
               label: "用户姓名",
               prop: "realName",
-              search: true,
               display: false
             },
             {
