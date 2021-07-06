@@ -1,5 +1,6 @@
 <template>
   <basic-container>
+
     <avue-crud :option="option"
                :table-loading="loading"
                :data="data"
@@ -27,12 +28,17 @@
                    @click="handleDelete">删 除
         </el-button>
       </template>
+      <template slot-scope="scope" slot="tenantIdForm">
+        <avue-input-tree filter v-model="form.tenantId" placeholder="请选择租户" type="tree"
+                         :dic="DIC" :props="tenantProps"></avue-input-tree>
+      </template>
     </avue-crud>
   </basic-container>
 </template>
 
 <script>
   import {getList, getDetail, add, update, remove} from "@/api/wy_tenant_config/tenantconfig";
+  import {getList as getTenantList} from "@/api/system/tenant";
   import {mapGetters} from "vuex";
 
   export default {
@@ -47,6 +53,11 @@
           total: 0
         },
         selectionList: [],
+        DIC: [],
+        tenantProps: {
+          label: 'tenantName',
+          value: 'tenantId'
+        },
         option: {
           height:'auto',
           calcHeight: 30,
@@ -138,6 +149,11 @@
         });
         return ids.join(",");
       }
+    },
+    created() {
+      getTenantList(1, 1000).then(res => {
+        this.DIC = res.data.data.records
+      })
     },
     methods: {
       rowSave(row, done, loading) {

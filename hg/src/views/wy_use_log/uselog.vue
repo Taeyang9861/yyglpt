@@ -72,6 +72,33 @@
             //   }]
             // },
             {
+              label: "设备名称",
+              prop: "eqName",
+              search: true,
+              rules: [{
+                required: true,
+                message: "请输入设备id",
+                trigger: "blur"
+              }]
+            },
+            {
+              label: "设备部门",
+              prop: "deptName",
+            },
+            {
+              label: "设备部门",
+              prop: "deptId",
+              hide: true,
+              search: true,
+              type: 'tree',
+              dicUrl: "/api/blade-system/dept/list",
+              dicQuery: {current: 1, size: 1000},
+              props: {
+                label: "deptName",
+                value: "id"
+              },
+            },
+            {
               label: "使用时间",
               prop: "useTime",
               rules: [{
@@ -236,6 +263,7 @@
         this.onLoad(this.page);
       },
       searchChange(params, done) {
+        console.log(params);
         this.query = params;
         this.page.currentPage = 1;
         this.onLoad(this.page, params);

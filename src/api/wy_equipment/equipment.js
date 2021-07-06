@@ -52,7 +52,7 @@ export const jhsb = (row) => {
   return request({
     url: '/api/wy_equipment/equipment/perfect/info',
     method: 'post',
-    data: row
+    params: row
   })
 }
 
@@ -60,7 +60,7 @@ export const cxjhsb = (row) => {
   return request({
     url: '/api/wy_equipment/equipment/reactivate/info',
     method: 'post',
-    data: row
+    params: row
   })
 }
 
@@ -69,6 +69,6 @@ export const sj = (row) => {
   return request({
     url: '/api/wy_equipment_check/equipmentcheck/manual/lock/machine',
     method: 'post',
-    data: row
+    params: row
   })
 }

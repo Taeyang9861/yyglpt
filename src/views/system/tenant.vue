@@ -100,7 +100,6 @@ export default {
             width: 100,
             addDisplay: false,
             editDisplay: false,
-            hide: true,
             span: 24,
             rules: [{
               required: true,

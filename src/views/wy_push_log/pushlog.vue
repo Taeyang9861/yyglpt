@@ -27,6 +27,9 @@
                    @click="handleDelete">删 除
         </el-button>
       </template> -->
+      <template slot="pushType" slot-scope="scope">
+        <span>{{ scope.row.pushType === 1 ? '解锁消息' : (scope.row.pushType === 2 ? '锁机消息' : (scope.row.pushType === 3 ? '收款码消息' : (scope.row.pushType === 4 ? '硬锁消息(人工锁机)' : (scope.row.pushType === 5 ? '硬解锁消息(人工解除)' : (scope.row.pushType === 6 ? '激活完成提醒' : '——'))))) }}</span>
+      </template>
     </avue-crud>
   </basic-container>
 </template>
@@ -72,6 +75,21 @@
             //   }]
             // },
             {
+              label: "设备名称",
+              prop: "eqName",
+              span: 24,
+            },
+            {
+              label: "设备编码",
+              prop: "eqCode",
+              span: 24,
+            },
+            {
+              label: "设备部门名称",
+              prop: "eqDeptName",
+              span: 24,
+            },
+            {
               label: "推送内容",
               prop: "pushContext",
               span: 24,
@@ -90,6 +108,12 @@
                 message: "请输入推送时间",
                 trigger: "blur"
               }]
+            },
+            {
+              label: "推送类型",
+              prop: "pushType",
+              span: 24,
+              slot: true
             },
             // {
             //   label: "是否完成推送",

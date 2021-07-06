@@ -61,6 +61,18 @@
       <template slot="isLock" slot-scope="scope">
         <span>{{ scope.row.isLock === 1 ? '已锁定' : '未锁定' }}</span>
       </template>
+      <template slot="checkType" slot-scope="scope">
+        <span>{{ scope.row.equipmentCheckVO.checkType === 1 ? '次数' : (scope.row.equipmentStatus === 2 ? '时间' : (scope.row.equipmentStatus === 3 ? '无限制' : '——'))}}</span>
+      </template>
+      <template slot="surplusFrequency" slot-scope="scope">
+        <span>{{ scope.row.equipmentCheckVO.surplusFrequency || '——' }}</span>
+      </template>
+      <template slot="invalidTime" slot-scope="scope">
+        <span>{{ scope.row.equipmentCheckVO.invalidTime || '——' }}</span>
+      </template>
+      <template slot="effectTime" slot-scope="scope">
+        <span>{{ scope.row.equipmentCheckVO.effectTime || '——' }}</span>
+      </template>
     </avue-crud>
 
     <el-dialog
@@ -95,6 +107,7 @@
                 align="right"
                 type="datetime"
                 placeholder="选择日期"
+                value-format="yyyy-MM-dd HH:mm:ss"
                 :picker-options="pickerOptions">
               </el-date-picker>
             </el-form-item>
@@ -106,6 +119,7 @@
                 align="right"
                 type="datetime"
                 placeholder="选择日期"
+                value-format="yyyy-MM-dd HH:mm:ss"
                 :picker-options="pickerOptions">
               </el-date-picker>
             </el-form-item>
@@ -164,9 +178,9 @@
           value: 'id'
         },
         pickerOptions: {
-          disabledDate(time) {
-            return time.getTime() > Date.now();
-          },
+          // disabledDate(time) {
+          //   return time.getTime() > Date.now();
+          // },
           shortcuts: [{
             text: '今天',
             onClick(picker) {
@@ -269,6 +283,26 @@
               slot: true
             },
             {
+              label: "激活类型",
+              prop: "checkType",
+              slot: true
+            },
+            {
+              label: "剩余次数",
+              prop: "surplusFrequency",
+              slot: true
+            },
+            {
+              label: "生效时间",
+              prop: "effectTime",
+              slot: true
+            },
+            {
+              label: "失效时间",
+              prop: "invalidTime",
+              slot: true
+            },
+            {
               label: "是否人工锁定",
               prop: "isLock",
               slot: true
@@ -344,6 +378,7 @@
         sj({ eqId: row.equipmentCheckVO.equipmentId, isLock: row.isLock === 1 ? 2 : 1 }).then(res => {
           if (res.data.code === 200) {
             this.$message.success('锁机状态修改成功')
+            this.onLoad(this.page)
           }
         })
       },
@@ -356,23 +391,30 @@
       subJh(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            if (this.jhTypes === 1) {
-              jhsb(this.jhForm).then(res => {
-                if (res.data.code === 200) {
-                  this.$message.success('激活成功')
-                  this.onLoad()
-                  this.jhShow = false
+              if (this.jhForm.checkType === 2) {
+                if (this.jhForm.effectTime >= this.jhForm.invalidTime) {
+                  this.$message.warning('生效时间必须早于失效时间！')
+                  return
                 }
-              })
-            } else if (this.jhTypes === 2) {
-              cxjhsb(this.jhForm).then(res => {
-                if (res.data.code === 200) {
-                  this.$message.success('重新激活成功')
-                  this.onLoad()
-                  this.jhShow = false
-                }
-              })
-            }
+              }
+              if (this.jhTypes === 1) {
+                jhsb(this.jhForm).then(res => {
+                  if (res.data.code === 200) {
+                    this.$message.success('激活成功')
+                    this.onLoad(this.page)
+                    this.jhShow = false
+                  }
+                })
+              } else if (this.jhTypes === 2) {
+                cxjhsb(this.jhForm).then(res => {
+                  if (res.data.code === 200) {
+                    this.$message.success('重新激活成功')
+                    this.onLoad(this.page)
+                    this.jhShow = false
+                  }
+                })
+              }
+
           }
         })
       },

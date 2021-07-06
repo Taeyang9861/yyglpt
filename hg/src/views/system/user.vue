@@ -38,13 +38,13 @@
                        v-if="permission.user_delete"
                        @click="handleDelete">删 除
             </el-button>
-            <el-button type="info"
-                       size="small"
-                       plain
-                       v-if="permission.user_role"
-                       icon="el-icon-user"
-                       @click="handleGrant">角色配置
-            </el-button>
+<!--            <el-button type="info"-->
+<!--                       size="small"-->
+<!--                       plain-->
+<!--                       v-if="permission.user_role"-->
+<!--                       icon="el-icon-user"-->
+<!--                       @click="handleGrant">角色配置-->
+<!--            </el-button>-->
             <el-button type="info"
                        size="small"
                        plain
